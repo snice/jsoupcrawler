@@ -6,29 +6,17 @@ import org.junit.Test;
 
 import com.snicesoft.jsoupcrawler.config.entity.Info;
 import com.snicesoft.jsoupcrawler.core.Crawler;
-import com.snicesoft.jsoupcrawler.listener.DataAcceptListener;
+import com.snicesoft.jsoupcrawler.listener.BaseDataListener;
 
 public class CrawlerTest {
 	@Test
 	public void test() {
 		Crawler crawler = new Crawler();
-		crawler.setListener(new DataAcceptListener() {
-			@Override
-			public void accept(Info info, Map<String, Object> data) {
-				System.out.println(data);
-			}
+		crawler.setListener(new BaseDataListener() {
 
 			@Override
-			public Object[] getParams(Info info) {
-				Object[] params = null;
-				switch (info.getId()) {
-				case "oschina":
-					params = new Object[] { "industry" };
-					break;
-				default:
-					break;
-				}
-				return params;
+			public void stop() {
+				System.out.println("解析结束");
 			}
 
 			@Override
@@ -37,8 +25,14 @@ public class CrawlerTest {
 			}
 
 			@Override
-			public void stop() {
-				System.out.println("解析结束");
+			public void accept(Info info, int position, Map<String, Object> data) {
+				System.out.println(position + ":" + data);
+			}
+
+			@Override
+			public void initParas() {
+				addParam("oschina", new Object[] { "industry" });
+				addParam("oschina", new Object[] { "industry" });
 			}
 		});
 		crawler.start();

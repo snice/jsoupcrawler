@@ -37,52 +37,64 @@ public abstract class ICrawler {
 		return listener;
 	}
 
-	public final String getUrl(Info info) {
-		if (getParams(info) == null)
+	public final String getUrl(Info info, int position) {
+		if (getParams(info, position) == null)
 			return info.getUrl();
-		info.setUrl(String.format(info.getUrl(), getParams(info)));
+		info.setUrl(String.format(info.getUrl(), getParams(info, position)));
 		return info.getUrl();
 	}
 
-	public final Object[] getParams(Info info) {
+	public final Object[] getParams(Info info, int position) {
 		if (getListener() != null) {
-			return getListener().getParams(info);
+			return getListener().getParams(info, position);
 		}
 		return null;
 	}
 
 	protected final void execute(String configFile, String funName) {
-		try {
-			JsoupConfig config = JsoupConfig.load(engine, configFile);
-			if (getListener() != null)
-				getListener().start();
-			for (Info info : config.getInfos()) {
-				Document document = Jsoup.connect(getUrl(info)).userAgent(userAgent()).get();
-				Elements elements = null;
-				if (info.getRootTag() != null && !"".equals(info.getRootTag())) {
-					elements = document.select(info.getRootTag()).first().children();
-				} else {
-					elements = document.children();
-				}
-				for (Element ele : elements) {
-					Map<String, Object> map = new HashMap<String, Object>();
-					for (Column column : info.getColumns()) {
-						Object data = null;
-						if (column.getAttr() == null || "html".equals(column.getAttr()))
-							data = ele.select(column.getTag()).html();
-						else
-							data = ele.select(column.getTag()).attr(column.getAttr());
-						if (column.getFun() != null && !"".equals(column.getFun()))
-							data = column.function(invocable, funName, data);
-						map.put(column.getName(), data);
-					}
-					if (getListener() != null) {
-						getListener().accept(info, map);
-					}
+		JsoupConfig config = JsoupConfig.load(engine, configFile);
+		if (getListener() != null)
+			getListener().start();
+		for (Info info : config.getInfos()) {
+			long count = getListener().getCount(info);
+			if (count == 0) {
+				getConnection(info, 0, funName);
+			} else if (getListener().getCount(info) > 0) {
+				for (int i = 0; i < count; i++) {
+					getConnection(info, i, funName);
 				}
 			}
-			if (getListener() != null)
-				getListener().stop();
+
+		}
+		if (getListener() != null)
+			getListener().stop();
+	}
+
+	private void getConnection(Info info, int position, String funName) {
+		try {
+			Document document = Jsoup.connect(getUrl(info, position)).userAgent(userAgent()).get();
+			Elements elements = null;
+			if (info.getRootTag() != null && !"".equals(info.getRootTag())) {
+				elements = document.select(info.getRootTag()).first().children();
+			} else {
+				elements = document.children();
+			}
+			for (Element ele : elements) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				for (Column column : info.getColumns()) {
+					Object data = null;
+					if (column.getAttr() == null || "html".equals(column.getAttr()))
+						data = ele.select(column.getTag()).html();
+					else
+						data = ele.select(column.getTag()).attr(column.getAttr());
+					if (column.getFun() != null && !"".equals(column.getFun()))
+						data = column.function(invocable, funName, data);
+					map.put(column.getName(), data);
+				}
+				if (getListener() != null) {
+					getListener().accept(info, position, map);
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
