@@ -38,10 +38,11 @@ public abstract class ICrawler {
 	}
 
 	public final String getUrl(Info info, int position) {
-		if (getParams(info, position) == null)
+		Object[] param = getParams(info, position);
+		if (param == null)
 			return info.getUrl();
-		info.setUrl(String.format(info.getUrl(), getParams(info, position)));
-		return info.getUrl();
+		info.setFinalUrl(String.format(info.getUrl(), param));
+		return info.getFinalUrl();
 	}
 
 	public final Object[] getParams(Info info, int position) {

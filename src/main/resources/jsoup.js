@@ -12,7 +12,7 @@
 		} ]
 	}, {
 		id : '51cto',
-		url : 'http://www.51cto.com/',
+		url : 'http://www.51cto.com',
 		rootTag : '.home-left-list ul',
 		data : [ {
 			tag : '.time i',

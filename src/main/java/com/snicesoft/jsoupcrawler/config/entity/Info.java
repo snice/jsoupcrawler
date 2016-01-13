@@ -9,6 +9,15 @@ public class Info {
 	private String url;
 	private String rootTag;
 	private Object data;
+	private String finalUrl;// 最终执行的url
+
+	public void setFinalUrl(String finalUrl) {
+		this.finalUrl = finalUrl;
+	}
+
+	public String getFinalUrl() {
+		return finalUrl;
+	}
 
 	public void setId(String id) {
 		this.id = id;
@@ -24,6 +33,7 @@ public class Info {
 
 	public void setUrl(String url) {
 		this.url = url;
+		this.finalUrl = url;
 	}
 
 	public String getRootTag() {

@@ -26,13 +26,13 @@ public class CrawlerTest {
 
 			@Override
 			public void accept(Info info, int position, Map<String, Object> data) {
-				System.out.println(position + ":" + data);
+				System.out.println(position + ":" + info.getFinalUrl() + ":" + data);
 			}
 
 			@Override
 			public void initParas() {
 				addParam("oschina", new Object[] { "industry" });
-				addParam("oschina", new Object[] { "industry" });
+				addParam("oschina", new Object[] { "project" });
 			}
 		});
 		crawler.start();
