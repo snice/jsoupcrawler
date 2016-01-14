@@ -12,6 +12,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.snicesoft.jsoupcrawler.config.JsoupConfig;
 import com.snicesoft.jsoupcrawler.config.entity.Column;
 import com.snicesoft.jsoupcrawler.config.entity.Info;
@@ -52,17 +55,17 @@ public abstract class ICrawler {
 		return null;
 	}
 
-	protected final void execute(String configFile, String funName) {
+	protected final void execute(ParseType parseType, String configFile, String funName) {
 		JsoupConfig config = JsoupConfig.load(engine, configFile);
 		if (getListener() != null)
 			getListener().start();
 		for (Info info : config.getInfos()) {
 			long count = getListener().getCount(info);
 			if (count == 0) {
-				getConnection(info, 0, funName);
+				getConnection(parseType, info, 0, funName);
 			} else if (getListener().getCount(info) > 0) {
 				for (int i = 0; i < count; i++) {
-					getConnection(info, i, funName);
+					getConnection(parseType, info, i, funName);
 				}
 			}
 
@@ -71,9 +74,36 @@ public abstract class ICrawler {
 			getListener().stop();
 	}
 
-	private void getConnection(Info info, int position, String funName) {
+	private void getConnection(ParseType parseType, Info info, int position, String funName) {
+		Document document = null;
+		String url = getUrl(info, position);
+		switch (parseType) {
+		case Jsoup:
+			try {
+				document = Jsoup.connect(url).userAgent(userAgent()).get();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			break;
+		case HtmlUnit:
+			WebClient webClient = new WebClient(BrowserVersion.CHROME);
+			try {
+				webClient.getOptions().setJavaScriptEnabled(info.isJs());
+				webClient.getOptions().setCssEnabled(info.isCss());
+				HtmlPage page = webClient.getPage(url);
+				document = Jsoup.parse(page.asXml());
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				webClient.close();
+			}
+			break;
+		default:
+			break;
+		}
+		if (document == null)
+			return;
 		try {
-			Document document = Jsoup.connect(getUrl(info, position)).userAgent(userAgent()).get();
 			Elements elements = null;
 			if (info.getRootTag() != null && !"".equals(info.getRootTag())) {
 				elements = document.select(info.getRootTag()).first().children();
@@ -105,6 +135,6 @@ public abstract class ICrawler {
 		return DEFAULT_USER_AGENT;
 	}
 
-	public abstract void start();
+	public abstract void start(ParseType parseType);
 
 }

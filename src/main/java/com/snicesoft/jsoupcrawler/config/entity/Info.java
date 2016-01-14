@@ -6,6 +6,8 @@ import com.snicesoft.jsoupcrawler.utils.JSUtils;
 
 public class Info {
 	private String id;
+	private boolean css = false;
+	private boolean js = false;
 	private String url;
 	private String rootTag;
 	private Object data;
@@ -25,6 +27,22 @@ public class Info {
 
 	public String getId() {
 		return id;
+	}
+
+	public void setCss(boolean css) {
+		this.css = css;
+	}
+
+	public boolean isCss() {
+		return css;
+	}
+
+	public void setJs(boolean js) {
+		this.js = js;
+	}
+
+	public boolean isJs() {
+		return js;
 	}
 
 	public String getUrl() {
@@ -61,7 +79,8 @@ public class Info {
 
 	@Override
 	public String toString() {
-		return "Info [url=" + url + ", rootTag=" + rootTag + ", data=" + getColumns() + "]";
+		return "Info [id=" + id + ", css=" + css + ", js=" + js + ", url=" + url + ", rootTag=" + rootTag + ", data="
+				+ getColumns() + ", finalUrl=" + finalUrl + "]";
 	}
 
 }

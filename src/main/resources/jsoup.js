@@ -12,6 +12,8 @@
 		} ]
 	}, {
 		id : '51cto',
+		js : false, // 仅用于htmlunit
+		css : false,// 仅用于htmlunit
 		url : 'http://www.51cto.com',
 		rootTag : '.home-left-list ul',
 		data : [ {

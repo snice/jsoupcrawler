@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.snicesoft.jsoupcrawler.config.entity.Info;
 import com.snicesoft.jsoupcrawler.core.Crawler;
+import com.snicesoft.jsoupcrawler.core.ParseType;
 import com.snicesoft.jsoupcrawler.listener.BaseDataListener;
 
 public class CrawlerTest {
@@ -35,6 +36,6 @@ public class CrawlerTest {
 				addParam("oschina", new Object[] { "project" });
 			}
 		});
-		crawler.start();
+		crawler.start(ParseType.Jsoup);
 	}
 }
